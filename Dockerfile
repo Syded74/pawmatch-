@@ -18,11 +18,11 @@ RUN pip install --no-cache-dir -r requirements.txt
 # Copy application code
 COPY . .
 
-# Expose port
-EXPOSE 8080
+# Expose port (7860 for Hugging Face, 8080 for others)
+EXPOSE 7860
 
 # Set environment variables
-ENV PORT=8080
+ENV PORT=7860
 ENV PYTHONUNBUFFERED=1
 
 # Run the application with gunicorn
