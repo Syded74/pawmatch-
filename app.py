@@ -105,8 +105,14 @@ def get_breed_image_url(breed_name: str) -> str:
                     # Pick a random image for variety
                     random_image = random.choice(images)
                     return f"/static/Dog-Breeds/{folder_name}/{os.path.basename(random_image)}"
+            
+            # Try without checking if directory exists (for Docker/production)
+            # Just pick a likely image number
+            image_num = random.randint(1, 10)
+            return f"/static/Dog-Breeds/{folder_name}/Image_{image_num}.jpg"
     
-    # Final fallback: Use Unsplash dog photos
+    # Final fallback: Use Unsplash dog photos with breed name
+    encoded_breed = quote(breed_name.replace(' dog', ''))
     return f"https://images.unsplash.com/photo-1587300003388-59208cc962cb?w=400&h=300&fit=crop&q=80"
 
 def text_to_score(text, trait=None):
