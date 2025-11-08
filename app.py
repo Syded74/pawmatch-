@@ -88,21 +88,33 @@ def get_breed_image_url(breed_name: str) -> str:
     if folder_name:
         # Azure Blob Storage mode
         if AZURE_STORAGE_ACCOUNT:
-            # Generate random image number (most folders have 1-30 images)
-            random_image_num = random.randint(1, 30)
             # URL-encode the folder name to handle spaces and special characters
             encoded_folder = quote(folder_name)
-            blob_url = f"https://{AZURE_STORAGE_ACCOUNT}.blob.core.windows.net/{AZURE_STORAGE_CONTAINER}/{encoded_folder}/Image_{random_image_num}.jpg"
+            
+            # Some breeds have Image_1.gif locally, but Azure only has .jpg files
+            # Use Image_2.jpg for breeds that have .gif as Image_1
+            gif_breeds = ['staffordshire bull terrier dog']
+            image_num = '2' if folder_name in gif_breeds else '1'
+            
+            blob_url = f"https://{AZURE_STORAGE_ACCOUNT}.blob.core.windows.net/{AZURE_STORAGE_CONTAINER}/{encoded_folder}/Image_{image_num}.jpg"
             return blob_url
         
         # Local development mode - use local files
         else:
             image_dir = f"static/Dog-Breeds/{folder_name}"
             if os.path.exists(image_dir):
-                images = glob.glob(f"{image_dir}/Image_*.jpg")
-                if images:
-                    random_image = random.choice(images)
-                    return f"/static/Dog-Breeds/{folder_name}/{os.path.basename(random_image)}"
+                # Try Image_1.jpg first
+                if os.path.exists(f"{image_dir}/Image_1.jpg"):
+                    return f"/static/Dog-Breeds/{folder_name}/Image_1.jpg"
+                # Fall back to Image_1.gif
+                elif os.path.exists(f"{image_dir}/Image_1.gif"):
+                    return f"/static/Dog-Breeds/{folder_name}/Image_1.gif"
+                # Fall back to any image
+                else:
+                    images = glob.glob(f"{image_dir}/Image_*.*")
+                    if images:
+                        random_image = random.choice(images)
+                        return f"/static/Dog-Breeds/{folder_name}/{os.path.basename(random_image)}"
     
     # Fallback: Use Unsplash dog photos
     return f"https://images.unsplash.com/photo-1587300003388-59208cc962cb?w=400&h=300&fit=crop&q=80"
