@@ -72,21 +72,37 @@ def match_breeds(user_preferences, top_n=3):
 
 def get_breed_image_url(breed_name: str) -> str:
     """
-    Get breed image URL from GitHub raw content
-    Simple and reliable - no Docker issues
+    Get breed image URL from Azure Blob Storage or local files
+    Uses comprehensive mapping to match AKC breed names to folder names
     """
     import random
     from urllib.parse import quote
+    
+    # Check if running on Azure (has storage account env var)
+    AZURE_STORAGE_ACCOUNT = os.getenv('AZURE_STORAGE_ACCOUNT')
+    AZURE_STORAGE_CONTAINER = os.getenv('AZURE_STORAGE_CONTAINER', 'dog-breeds')
     
     # Use the comprehensive mapping
     folder_name = BREED_FOLDER_MAP.get(breed_name)
     
     if folder_name:
-        # GitHub raw URL - works everywhere!
-        image_num = random.randint(1, 30)
-        encoded_folder = quote(folder_name)
-        github_url = f"https://raw.githubusercontent.com/Syded74/pawmatch-/main/static/Dog-Breeds/{encoded_folder}/Image_{image_num}.jpg"
-        return github_url
+        # Azure Blob Storage mode
+        if AZURE_STORAGE_ACCOUNT:
+            # Generate random image number (most folders have 1-30 images)
+            random_image_num = random.randint(1, 30)
+            # URL-encode the folder name to handle spaces and special characters
+            encoded_folder = quote(folder_name)
+            blob_url = f"https://{AZURE_STORAGE_ACCOUNT}.blob.core.windows.net/{AZURE_STORAGE_CONTAINER}/{encoded_folder}/Image_{random_image_num}.jpg"
+            return blob_url
+        
+        # Local development mode - use local files
+        else:
+            image_dir = f"static/Dog-Breeds/{folder_name}"
+            if os.path.exists(image_dir):
+                images = glob.glob(f"{image_dir}/Image_*.jpg")
+                if images:
+                    random_image = random.choice(images)
+                    return f"/static/Dog-Breeds/{folder_name}/{os.path.basename(random_image)}"
     
     # Fallback: Use Unsplash dog photos
     return f"https://images.unsplash.com/photo-1587300003388-59208cc962cb?w=400&h=300&fit=crop&q=80"
