@@ -1,0 +1,23 @@
+# Ignore files not needed in Docker image
+.git
+.gitignore
+.env
+.venv
+venv
+__pycache__
+*.pyc
+*.pyo
+*.pyd
+.Python
+*.so
+*.egg
+*.egg-info
+.ipynb_checkpoints
+*.ipynb
+README.md
+SPECIFICATIONS.md
+.vercelignore
+vercel.json
+azure.yaml
+static/Dog-Breeds
+.DS_Store

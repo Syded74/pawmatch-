@@ -1,0 +1,9 @@
+# Azure Developer CLI Configuration
+name: pawmatch
+metadata:
+  template: pawmatch-app
+services:
+  web:
+    project: .
+    language: python
+    host: appservice
