@@ -13,13 +13,20 @@ load_dotenv()
 import numpy as np
 from sklearn.metrics.pairwise import cosine_similarity
 from langchain_openai import AzureChatOpenAI
-from langgraph.graph import StateGraph, MessagesState, START, END
+from langgraph.graph import StateGraph, START, END
+from langgraph.graph.message import add_messages
 from langgraph.checkpoint.memory import MemorySaver
 from langchain_core.messages import HumanMessage, AIMessage, ToolMessage
+from typing import Annotated
+from typing_extensions import TypedDict
 import uuid
 import requests
 import glob
 from breed_mapping import BREED_FOLDER_MAP
+
+# Define MessagesState for LangGraph
+class MessagesState(TypedDict):
+    messages: Annotated[list, add_messages]
 
 app = Flask(__name__)
 app.secret_key = os.urandom(24)
