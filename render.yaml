@@ -1,0 +1,22 @@
+services:
+  - type: web
+    name: pawmatcher
+    env: python
+    region: oregon
+    plan: free
+    branch: main
+    buildCommand: pip install -r requirements.txt
+    startCommand: gunicorn app:app
+    envVars:
+      - key: AZURE_OPENAI_API_KEY
+        sync: false
+      - key: AZURE_OPENAI_ENDPOINT
+        sync: false
+      - key: AZURE_OPENAI_DEPLOYMENT_NAME
+        sync: false
+      - key: AZURE_STORAGE_ACCOUNT
+        value: pawmatchstorage2024
+      - key: AZURE_STORAGE_CONTAINER
+        value: dog-breeds
+      - key: PYTHON_VERSION
+        value: 3.12.6

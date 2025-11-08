@@ -1,0 +1,1399 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PawMatch - Find Your Perfect Dog Breed Matcher</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: #1a1a1a;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        /* Animated background */
+        .bg-animation {
+            position: fixed;
+            width: 100%;
+            height: 100%;
+            top: 0;
+            left: 0;
+            z-index: 0;
+            overflow: hidden;
+        }
+
+        .gradient-orb {
+            position: absolute;
+            border-radius: 50%;
+            filter: blur(80px);
+            animation: orb-float 15s infinite ease-in-out;
+        }
+
+        .orb-1 {
+            width: 400px;
+            height: 400px;
+            background: linear-gradient(135deg, #9D1F15 0%, #7a1910 100%);
+            top: -100px;
+            left: -100px;
+            animation-delay: 0s;
+        }
+
+        .orb-2 {
+            width: 350px;
+            height: 350px;
+            background: linear-gradient(135deg, #FBF7BA 0%, #e8e4a8 100%);
+            bottom: -100px;
+            right: -100px;
+            animation-delay: 3s;
+            opacity: 0.3;
+        }
+
+        .orb-3 {
+            width: 300px;
+            height: 300px;
+            background: linear-gradient(135deg, #9D1F15 0%, #FBF7BA 100%);
+            top: 50%;
+            right: -150px;
+            animation-delay: 6s;
+        }
+
+        @keyframes orb-float {
+            0%, 100% {
+                transform: translate(0, 0) scale(1);
+            }
+            33% {
+                transform: translate(50px, -50px) scale(1.1);
+            }
+            66% {
+                transform: translate(-30px, 30px) scale(0.9);
+            }
+        }
+
+        .container {
+            width: 100%;
+            max-width: 900px;
+            background: rgba(255, 255, 255, 0.03);
+            backdrop-filter: blur(20px);
+            border-radius: 30px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 30px 80px rgba(0, 0, 0, 0.5),
+                        inset 0 1px 1px rgba(255, 255, 255, 0.1);
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            height: 90vh;
+            max-height: 850px;
+            position: relative;
+            z-index: 1;
+            animation: container-entrance 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        @keyframes container-entrance {
+            from {
+                opacity: 0;
+                transform: scale(0.95) translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: scale(1) translateY(0);
+            }
+        }
+
+        .header {
+            background: linear-gradient(135deg, rgba(157, 31, 21, 0.3) 0%, rgba(122, 25, 16, 0.3) 100%);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            color: white;
+            padding: 30px;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .header::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(255, 255, 255, 0.05) 0%, transparent 70%);
+            animation: header-glow 8s infinite ease-in-out;
+        }
+
+        @keyframes header-glow {
+            0%, 100% {
+                transform: translate(0, 0);
+            }
+            50% {
+                transform: translate(10%, 10%);
+            }
+        }
+
+        .header-content {
+            position: relative;
+            z-index: 1;
+        }
+
+        .header h1 {
+            font-size: 42px;
+            margin-bottom: 8px;
+            font-weight: 800;
+            background: linear-gradient(135deg, #FBF7BA 0%, #fff 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            display: inline-block;
+            animation: title-shimmer 3s infinite;
+        }
+
+        @keyframes title-shimmer {
+            0%, 100% {
+                background-position: 0% 50%;
+            }
+            50% {
+                background-position: 100% 50%;
+            }
+        }
+
+        .header .logo {
+            font-size: 40px;
+            margin-bottom: 10px;
+            display: inline-block;
+            animation: bounce 2s infinite ease-in-out;
+            color: #9D1F15;
+        }
+
+        @keyframes bounce {
+            0%, 100% {
+                transform: translateY(0) rotate(0deg);
+            }
+            50% {
+                transform: translateY(-10px) rotate(5deg);
+            }
+        }
+
+        .header p {
+            font-size: 16px;
+            opacity: 0.9;
+            color: #e0e0e0;
+            font-weight: 300;
+        }
+
+        .chat-container {
+            flex: 1;
+            overflow-y: auto;
+            padding: 30px 25px;
+            background: transparent;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            position: relative;
+        }
+
+        .message {
+            display: flex;
+            gap: 15px;
+            animation: message-slide 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            opacity: 0;
+            animation-fill-mode: forwards;
+        }
+
+        @keyframes message-slide {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .message.user {
+            flex-direction: row-reverse;
+        }
+
+        .message-avatar {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            flex-shrink: 0;
+            position: relative;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+            transition: transform 0.3s ease;
+        }
+
+        .message:hover .message-avatar {
+            transform: scale(1.1);
+        }
+
+        .message.bot .message-avatar {
+            background: linear-gradient(135deg, #9D1F15 0%, #7a1910 100%);
+            animation: avatar-pulse 2s infinite;
+            color: #FBF7BA;
+        }
+
+        .message.user .message-avatar {
+            background: linear-gradient(135deg, #FBF7BA 0%, #e8e4a8 100%);
+            color: #9D1F15;
+        }
+
+        @keyframes avatar-pulse {
+            0%, 100% {
+                box-shadow: 0 5px 15px rgba(157, 31, 21, 0.4);
+            }
+            50% {
+                box-shadow: 0 5px 25px rgba(157, 31, 21, 0.6);
+            }
+        }
+
+        .message-content {
+            max-width: 65%;
+            padding: 18px 24px;
+            border-radius: 20px;
+            line-height: 1.6;
+            word-wrap: break-word;
+            position: relative;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .message-content:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 12px 30px rgba(0, 0, 0, 0.4);
+        }
+
+        .message.bot .message-content {
+            background: rgba(255, 255, 255, 0.08);
+            color: #ffffff;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .message.user .message-content {
+            background: linear-gradient(135deg, rgba(157, 31, 21, 0.3) 0%, rgba(122, 25, 16, 0.3) 100%);
+            color: white;
+            border: 1px solid rgba(157, 31, 21, 0.4);
+        }
+
+        .typing-indicator {
+            display: none;
+            gap: 15px;
+        }
+
+        .typing-indicator.active {
+            display: flex;
+        }
+
+        .typing-indicator .message-content {
+            display: flex;
+            gap: 8px;
+            padding: 18px 24px;
+        }
+
+        .typing-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #9D1F15 0%, #7a1910 100%);
+            animation: typing 1.4s infinite;
+        }
+
+        .typing-dot:nth-child(2) {
+            animation-delay: 0.2s;
+        }
+
+        .typing-dot:nth-child(3) {
+            animation-delay: 0.4s;
+        }
+
+        @keyframes typing {
+            0%, 60%, 100% {
+                transform: translateY(0) scale(1);
+                opacity: 0.7;
+            }
+            30% {
+                transform: translateY(-12px) scale(1.2);
+                opacity: 1;
+            }
+        }
+
+        .input-container {
+            padding: 25px;
+            background: rgba(255, 255, 255, 0.03);
+            backdrop-filter: blur(20px);
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            display: flex;
+            gap: 15px;
+        }
+
+        .input-wrapper {
+            flex: 1;
+            position: relative;
+        }
+
+        #user-input {
+            width: 100%;
+            padding: 18px 24px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 2px solid rgba(255, 255, 255, 0.1);
+            border-radius: 25px;
+            font-size: 16px;
+            color: white;
+            outline: none;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            font-family: inherit;
+            backdrop-filter: blur(10px);
+        }
+
+        #user-input::placeholder {
+            color: rgba(255, 255, 255, 0.4);
+        }
+
+        #user-input:focus {
+            border-color: #9D1F15;
+            background: rgba(255, 255, 255, 0.08);
+            box-shadow: 0 0 0 4px rgba(157, 31, 21, 0.2),
+                        0 8px 20px rgba(157, 31, 21, 0.3);
+            transform: translateY(-2px);
+        }
+
+        #send-btn {
+            padding: 18px 35px;
+            background: linear-gradient(135deg, #9D1F15 0%, #7a1910 100%);
+            color: #FBF7BA;
+            border: none;
+            border-radius: 25px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            box-shadow: 0 8px 20px rgba(157, 31, 21, 0.4);
+            position: relative;
+            overflow: hidden;
+        }
+
+        #send-btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+            transition: left 0.5s;
+        }
+
+        #send-btn:hover::before {
+            left: 100%;
+        }
+
+        #send-btn:hover {
+            transform: translateY(-3px) scale(1.05);
+            box-shadow: 0 12px 30px rgba(157, 31, 21, 0.5);
+        }
+
+        #send-btn:active {
+            transform: translateY(-1px) scale(1.02);
+        }
+
+        #send-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .reset-btn {
+            position: absolute;
+            top: 25px;
+            right: 25px;
+            padding: 10px 20px;
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-radius: 25px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            backdrop-filter: blur(10px);
+            z-index: 10;
+        }
+
+        .reset-btn:hover {
+            background: rgba(157, 31, 21, 0.2);
+            color: #FBF7BA;
+            transform: scale(1.05);
+            border-color: #9D1F15;
+        }
+
+        .welcome-message {
+            text-align: center;
+            padding: 60px 30px;
+            color: #ffffff;
+            animation: welcome-fade 1s ease-out;
+        }
+
+        @keyframes welcome-fade {
+            from {
+                opacity: 0;
+                transform: scale(0.9);
+            }
+            to {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+
+        .welcome-emoji {
+            font-size: 80px;
+            margin-bottom: 25px;
+            animation: welcome-bounce 1.5s infinite ease-in-out;
+        }
+
+        @keyframes welcome-bounce {
+            0%, 100% {
+                transform: translateY(0) scale(1);
+            }
+            50% {
+                transform: translateY(-15px) scale(1.1);
+            }
+        }
+
+        .welcome-message h2 {
+            font-size: 32px;
+            margin-bottom: 20px;
+            background: linear-gradient(135deg, #FBF7BA 0%, #fff 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            font-weight: 800;
+        }
+
+        .welcome-message p {
+            font-size: 18px;
+            line-height: 1.8;
+            margin-bottom: 12px;
+            opacity: 0.9;
+            font-weight: 300;
+        }
+
+        .welcome-message strong {
+            color: #FBF7BA;
+            font-weight: 600;
+        }
+
+        /* Scrollbar styling */
+        .chat-container::-webkit-scrollbar {
+            width: 10px;
+        }
+
+        .chat-container::-webkit-scrollbar-track {
+            background: rgba(255, 255, 255, 0.02);
+        }
+
+        .chat-container::-webkit-scrollbar-thumb {
+            background: linear-gradient(135deg, #9D1F15 0%, #7a1910 100%);
+            border-radius: 10px;
+        }
+
+        .chat-container::-webkit-scrollbar-thumb:hover {
+            background: linear-gradient(135deg, #7a1910 0%, #9D1F15 100%);
+        }
+
+        /* Breed gallery styles */
+        .breed-gallery {
+            margin: 20px 0;
+            padding: 20px;
+            background: linear-gradient(135deg, rgba(157, 31, 21, 0.1) 0%, rgba(97, 21, 15, 0.1) 100%);
+            border-radius: 15px;
+            animation: slideIn 0.5s ease-out;
+            border: 2px solid rgba(157, 31, 21, 0.2);
+        }
+
+        .gallery-title {
+            font-size: 24px;
+            font-weight: bold;
+            text-align: center;
+            margin-bottom: 20px;
+            color: #f5f5dc;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+        }
+
+        .breed-cards {
+            display: flex;
+            gap: 20px;
+            flex-wrap: nowrap;
+            justify-content: center;
+            overflow-x: auto;
+            padding: 10px 0;
+            scroll-behavior: smooth;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        /* Custom scrollbar for breed cards */
+        .breed-cards::-webkit-scrollbar {
+            height: 8px;
+        }
+
+        .breed-cards::-webkit-scrollbar-track {
+            background: rgba(157, 31, 21, 0.1);
+            border-radius: 10px;
+        }
+
+        .breed-cards::-webkit-scrollbar-thumb {
+            background: linear-gradient(135deg, #9D1F15 0%, #7a1910 100%);
+            border-radius: 10px;
+        }
+
+        .breed-cards::-webkit-scrollbar-thumb:hover {
+            background: linear-gradient(135deg, #7a1910 0%, #9D1F15 100%);
+        }
+
+        .breed-cards {
+            display: flex;
+            gap: 20px;
+            flex-wrap: nowrap;
+            justify-content: center;
+            overflow-x: auto;
+            padding: 10px 0;
+        }
+
+        .breed-card {
+            flex: 0 0 280px;
+            background: white;
+            border-radius: 15px;
+            padding: 15px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            position: relative;
+            animation: fadeIn 0.6s ease-out;
+        }
+
+        .breed-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+        }
+
+        .breed-rank {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            font-size: 32px;
+            z-index: 10;
+        }
+
+        .breed-image {
+            width: 100%;
+            height: 200px;
+            object-fit: cover;
+            border-radius: 10px;
+            margin-bottom: 10px;
+        }
+
+        .breed-name {
+            font-size: 18px;
+            font-weight: bold;
+            margin: 10px 0 5px 0;
+            color: #333;
+            text-align: center;
+        }
+
+        .breed-score {
+            font-size: 16px;
+            color: #9D1F15;
+            font-weight: 600;
+            text-align: center;
+            margin-bottom: 10px;
+        }
+
+        .share-btn {
+            width: 100%;
+            padding: 10px;
+            background: linear-gradient(135deg, #9D1F15 0%, #61150F 100%);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .share-btn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 5px 15px rgba(157, 31, 21, 0.5);
+        }
+
+        .share-all-btn {
+            margin: 20px auto;
+            padding: 15px 30px;
+            background: linear-gradient(135deg, #9D1F15 0%, #61150F 100%);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            box-shadow: 0 4px 15px rgba(157, 31, 21, 0.3);
+        }
+
+        .share-all-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(157, 31, 21, 0.5);
+        }
+
+        .share-all-btn i {
+            font-size: 18px;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: scale(0.9);
+            }
+            to {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+
+        /* Mobile responsive */
+        @media (max-width: 768px) {
+            .container {
+                height: 100vh;
+                max-height: 100vh;
+                border-radius: 0;
+            }
+
+            .header h1 {
+                font-size: 32px;
+            }
+
+            .header .logo {
+                font-size: 40px;
+            }
+
+            .message-content {
+                max-width: 80%;
+            }
+
+            .reset-btn {
+                padding: 8px 16px;
+                font-size: 12px;
+            }
+
+            #send-btn {
+                padding: 15px 25px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="bg-animation">
+        <div class="gradient-orb orb-1"></div>
+        <div class="gradient-orb orb-2"></div>
+        <div class="gradient-orb orb-3"></div>
+    </div>
+
+    <div class="container">
+        <div class="header">
+            <button class="reset-btn" onclick="resetChat()">
+                <i class="fas fa-redo-alt"></i> New Chat
+            </button>
+            <div class="header-content">
+                <div class="logo"><i class="fas fa-paw"></i></div>
+                <h1>PawMatch</h1>
+                <p>Find your perfect dog breed match</p>
+            </div>
+        </div>
+
+        <div class="chat-container" id="chat-container">
+            <div class="welcome-message">
+                <div class="welcome-emoji"><i class="fas fa-dog" style="font-size: 80px; color: #9D1F15;"></i></div>
+                <h2>Welcome to PawMatch</h2>
+                <p>I'm Anna, your friendly dog breed matching assistant</p>
+                <p>Let's chat and find your perfect furry companion based on your lifestyle and preferences.</p>
+                <p><strong>Just start by saying hi</strong></p>
+            </div>
+        </div>
+
+        <div class="input-container">
+            <div class="input-wrapper">
+                <input 
+                    type="text" 
+                    id="user-input" 
+                    placeholder="Type your message here..."
+                    onkeypress="handleKeyPress(event)"
+                >
+            </div>
+            <button id="send-btn" onclick="sendMessage()">
+                <span>Send</span>
+                <i class="fas fa-paper-plane"></i>
+            </button>
+        </div>
+    </div>
+
+    <script>
+        const chatContainer = document.getElementById('chat-container');
+        const userInput = document.getElementById('user-input');
+        const sendBtn = document.getElementById('send-btn');
+        let isProcessing = false;
+        
+        // Session management using localStorage
+        let sessionId = localStorage.getItem('pawmatch_session_id');
+
+        function handleKeyPress(event) {
+            if (event.key === 'Enter' && !isProcessing) {
+                sendMessage();
+            }
+        }
+
+        function addMessage(content, isUser = false) {
+            const welcomeMsg = chatContainer.querySelector('.welcome-message');
+            if (welcomeMsg) {
+                welcomeMsg.remove();
+            }
+
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `message ${isUser ? 'user' : 'bot'}`;
+            
+            const avatar = document.createElement('div');
+            avatar.className = 'message-avatar';
+            avatar.innerHTML = isUser ? '<i class="fas fa-user"></i>' : '<i class="fas fa-dog"></i>';
+            
+            const contentDiv = document.createElement('div');
+            contentDiv.className = 'message-content';
+            
+            let formattedContent = content
+                .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+                .replace(/\n/g, '<br>');
+            
+            contentDiv.innerHTML = formattedContent;
+            
+            messageDiv.appendChild(avatar);
+            messageDiv.appendChild(contentDiv);
+            
+            chatContainer.appendChild(messageDiv);
+            chatContainer.scrollTop = chatContainer.scrollHeight;
+            
+            // Detect if this is a match result message and show images
+            // Check for either medal format (🥇) or numbered format (1. **Breed** - X% match)
+            if (!isUser && content.includes('match') && (content.includes('🥇') || /\d+\.\s*\*\*.*?\*\*\s*-\s*[\d.]+%\s*match/i.test(content))) {
+                displayBreedImages(content);
+            }
+        }
+
+        function showTypingIndicator() {
+            const typingDiv = document.createElement('div');
+            typingDiv.className = 'message bot typing-indicator active';
+            typingDiv.id = 'typing-indicator';
+            
+            const avatar = document.createElement('div');
+            avatar.className = 'message-avatar';
+            avatar.innerHTML = '<i class="fas fa-dog"></i>';
+            
+            const contentDiv = document.createElement('div');
+            contentDiv.className = 'message-content';
+            contentDiv.innerHTML = `
+                <div class="typing-dot"></div>
+                <div class="typing-dot"></div>
+                <div class="typing-dot"></div>
+            `;
+            
+            typingDiv.appendChild(avatar);
+            typingDiv.appendChild(contentDiv);
+            
+            chatContainer.appendChild(typingDiv);
+            chatContainer.scrollTop = chatContainer.scrollHeight;
+        }
+
+        function hideTypingIndicator() {
+            const typingIndicator = document.getElementById('typing-indicator');
+            if (typingIndicator) {
+                typingIndicator.remove();
+            }
+        }
+
+        async function sendMessage() {
+            if (isProcessing) return;
+            
+            const message = userInput.value.trim();
+            if (!message) return;
+
+            isProcessing = true;
+            sendBtn.disabled = true;
+            
+            // Add user message to chat
+            addMessage(message, true);
+            userInput.value = '';
+
+            // Show typing indicator
+            showTypingIndicator();
+
+            try {
+                const response = await fetch('/api/chat', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ 
+                        message: message,
+                        session_id: sessionId  // Send session ID to server
+                    })
+                });
+
+                const data = await response.json();
+                
+                hideTypingIndicator();
+
+                if (data.success) {
+                    // Store session ID from server response
+                    if (data.session_id) {
+                        sessionId = data.session_id;
+                        localStorage.setItem('pawmatch_session_id', sessionId);
+                    }
+                    addMessage(data.response, false);
+                } else {
+                    addMessage('Sorry, something went wrong. Please try again! 😅', false);
+                }
+            } catch (error) {
+                hideTypingIndicator();
+                addMessage('Oops! Connection error. Please check if the server is running. 🔌', false);
+                console.error('Error:', error);
+            } finally {
+                isProcessing = false;
+                sendBtn.disabled = false;
+                userInput.focus();
+            }
+        }
+
+        async function resetChat() {
+            // Call backend to reset session (without confirmation)
+            if (sessionId) {
+                try {
+                    await fetch('/api/reset', {
+                        method: 'POST',
+                        headers: {'Content-Type': 'application/json'},
+                        body: JSON.stringify({ session_id: sessionId })
+                    });
+                } catch (error) {
+                    console.error('Error resetting session:', error);
+                }
+            }
+
+            // Clear session from localStorage
+            localStorage.removeItem('pawmatch_session_id');
+            sessionId = null;
+
+            // Reset UI
+            chatContainer.innerHTML = `
+                <div class="welcome-message">
+                    <div class="welcome-emoji"><i class="fas fa-dog" style="font-size: 80px; color: #9D1F15;"></i></div>
+                    <h2>Welcome to PawMatch</h2>
+                    <p>I'm Anna, your friendly dog breed matching assistant</p>
+                    <p>Let's chat and find your perfect furry companion based on your lifestyle and preferences.</p>
+                    <p><strong>Just start by saying hi!</strong></p>
+                </div>
+            `;
+            
+            userInput.value = '';
+            userInput.focus();
+        }
+
+        // Extract breed names and scores from match results
+        function extractBreedData(content) {
+            const breeds = [];
+            const scores = [];
+            const lines = content.split('\n');
+            
+            lines.forEach(line => {
+                // Match pattern: 🥇 **Breed Name** - 95.3% match OR 1. **Breed Name** - 95.3% match
+                let match = line.match(/[🥇🥈🥉]\s*\*?\*?([^*]+?)\*?\*?\s*-\s*([\d.]+)%\s*match/i);
+                if (!match) {
+                    // Try numbered list format: 1. **Breed Name** - 95.3% match
+                    match = line.match(/\d+\.\s*\*?\*?([^*]+?)\*?\*?\s*-\s*([\d.]+)%\s*match/i);
+                }
+                if (match) {
+                    breeds.push(match[1].trim());
+                    scores.push(parseFloat(match[2]));
+                }
+            });
+            
+            return { breeds, scores };
+        }
+
+        // Display breed images
+        async function displayBreedImages(content) {
+            const { breeds, scores } = extractBreedData(content);
+            
+            if (breeds.length === 0) return;
+            
+            try {
+                const response = await fetch('/api/breed_images', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ breeds, scores })
+                });
+                
+                const data = await response.json();
+                
+                if (!data.success) return;
+                
+                // Create image gallery
+                const gallery = document.createElement('div');
+                gallery.className = 'breed-gallery';
+                gallery.innerHTML = '<div class="gallery-title">🐾 Meet Your Perfect Matches!</div>';
+                
+                // Add "Share All 3" button
+                const shareAllBtn = document.createElement('button');
+                shareAllBtn.className = 'share-all-btn';
+                shareAllBtn.innerHTML = '<i class="fas fa-share-alt"></i> Share All 3 Matches';
+                shareAllBtn.onclick = () => generateAllMatchesPost(data.breeds);
+                gallery.appendChild(shareAllBtn);
+                
+                const cardsContainer = document.createElement('div');
+                cardsContainer.className = 'breed-cards';
+                
+                data.breeds.forEach((item, index) => {
+                    const card = document.createElement('div');
+                    card.className = 'breed-card';
+                    
+                    const medals = ['🥇', '🥈', '🥉'];
+                    card.innerHTML = `
+                        <div class="breed-rank">${medals[index]}</div>
+                        <img src="${item.image_url}" alt="${item.breed}" class="breed-image">
+                        <h3 class="breed-name">${item.breed}</h3>
+                        <div class="breed-score">${item.score}% Match</div>
+                        <button class="share-btn">
+                            <i class="fas fa-share-alt"></i> Share
+                        </button>
+                    `;
+                    
+                    // Add event listener properly to avoid issues with special characters
+                    const shareBtn = card.querySelector('.share-btn');
+                    shareBtn.addEventListener('click', () => {
+                        generateSocialPost(item.breed, item.score, item.image_url);
+                    });
+                    
+                    cardsContainer.appendChild(card);
+                });
+                
+                gallery.appendChild(cardsContainer);
+                chatContainer.appendChild(gallery);
+                chatContainer.scrollTop = chatContainer.scrollHeight;
+                
+            } catch (error) {
+                console.error('Error loading breed images:', error);
+            }
+        }
+
+        // Generate social media post
+        function generateSocialPost(breedName, matchScore, imageUrl) {
+            const canvas = document.createElement('canvas');
+            canvas.width = 1080;
+            canvas.height = 1080;
+            const ctx = canvas.getContext('2d');
+            
+            // Background gradient - matching PawMatch brand colors
+            const gradient = ctx.createLinearGradient(0, 0, 0, 1080);
+            gradient.addColorStop(0, '#9D1F15');
+            gradient.addColorStop(1, '#61150F');
+            ctx.fillStyle = gradient;
+            ctx.fillRect(0, 0, 1080, 1080);
+            
+            // Load and draw breed image
+            const img = new Image();
+            img.crossOrigin = 'anonymous';  // For CORS
+            
+            img.onload = function() {
+                // Draw image (centered, circular)
+                ctx.save();
+                ctx.beginPath();
+                ctx.arc(540, 450, 280, 0, Math.PI * 2);
+                ctx.closePath();
+                ctx.clip();
+                ctx.drawImage(img, 260, 170, 560, 560);
+                ctx.restore();
+                
+                // Add white circle border
+                ctx.strokeStyle = 'white';
+                ctx.lineWidth = 15;
+                ctx.beginPath();
+                ctx.arc(540, 450, 280, 0, Math.PI * 2);
+                ctx.stroke();
+                
+                // Add text with shadow
+                ctx.shadowColor = 'rgba(0, 0, 0, 0.3)';
+                ctx.shadowBlur = 10;
+                ctx.shadowOffsetX = 2;
+                ctx.shadowOffsetY = 2;
+                
+                ctx.fillStyle = 'white';
+                ctx.font = 'bold 70px Arial';
+                ctx.textAlign = 'center';
+                ctx.fillText('🐾 My Perfect Match!', 540, 120);
+                
+                ctx.font = 'bold 58px Arial';
+                ctx.fillText(breedName, 540, 810);
+                
+                ctx.font = '48px Arial';
+                ctx.fillText(`${matchScore.toFixed(1)}% Match`, 540, 880);
+                
+                // Add decorative line with better spacing
+                ctx.strokeStyle = 'white';
+                ctx.lineWidth = 3;
+                ctx.beginPath();
+                ctx.moveTo(340, 950);
+                ctx.lineTo(740, 950);
+                ctx.stroke();
+                
+                ctx.font = 'bold 45px Arial';
+                ctx.fillText('🐾 PawMatch', 540, 1010);
+                
+                ctx.font = '34px Arial';
+                ctx.fillText('Find your perfect furry friend!', 540, 1055);
+                
+                // Show share dialog instead of auto-download
+                const imageData = canvas.toDataURL('image/png');
+                showShareDialog(imageData, breedName);
+            };
+            
+            img.onerror = function() {
+                alert('Could not load image for social post. Try again!');
+            };
+            
+            img.src = imageUrl;
+        }
+
+        // Generate social media post with all 3 matches - HORIZONTAL LAYOUT
+        function generateAllMatchesPost(breeds) {
+            const canvas = document.createElement('canvas');
+            canvas.width = 1920;  // Horizontal format for social media
+            canvas.height = 1080;  // HD resolution
+            const ctx = canvas.getContext('2d');
+            
+            // Background gradient
+            const gradient = ctx.createLinearGradient(0, 0, 0, 1080);
+            gradient.addColorStop(0, '#9D1F15');
+            gradient.addColorStop(1, '#61150F');
+            ctx.fillStyle = gradient;
+            ctx.fillRect(0, 0, 1920, 1080);
+            
+            // Title at top
+            ctx.shadowColor = 'rgba(0, 0, 0, 0.3)';
+            ctx.shadowBlur = 10;
+            ctx.fillStyle = 'white';
+            ctx.font = 'bold 72px Arial';
+            ctx.textAlign = 'center';
+            ctx.fillText('🐾 My Top 3 Dog Matches!', 960, 100);
+            
+            // Subtitle
+            ctx.font = '36px Arial';
+            ctx.fillText('Found with PawMatch', 960, 160);
+            
+            // Load and draw all 3 breed images horizontally
+            let loadedImages = 0;
+            const medals = ['🥇', '🥈', '🥉'];
+            const imageSize = 380;
+            const spacing = 600;
+            const startX = 210;
+            const imageY = 240;
+            
+            const drawBreed = (index) => {
+                if (index >= breeds.length) return;
+                
+                const breed = breeds[index];
+                const centerX = startX + (index * spacing);
+                const img = new Image();
+                img.crossOrigin = 'anonymous';
+                
+                img.onload = function() {
+                    const radius = imageSize / 2;
+                    
+                    // Draw circular image
+                    ctx.save();
+                    ctx.beginPath();
+                    ctx.arc(centerX, imageY + radius, radius, 0, Math.PI * 2);
+                    ctx.closePath();
+                    ctx.clip();
+                    ctx.drawImage(img, centerX - radius, imageY, imageSize, imageSize);
+                    ctx.restore();
+                    
+                    // White circle border
+                    ctx.strokeStyle = 'white';
+                    ctx.lineWidth = 10;
+                    ctx.beginPath();
+                    ctx.arc(centerX, imageY + radius, radius, 0, Math.PI * 2);
+                    ctx.stroke();
+                    
+                    // Medal badge
+                    ctx.font = 'bold 70px Arial';
+                    ctx.fillStyle = 'white';
+                    ctx.shadowColor = 'rgba(0, 0, 0, 0.5)';
+                    ctx.shadowBlur = 8;
+                    ctx.textAlign = 'center';
+                    ctx.fillText(medals[index], centerX - radius + 50, imageY + 80);
+                    
+                    // Breed name below image
+                    ctx.font = 'bold 42px Arial';
+                    ctx.fillStyle = 'white';
+                    ctx.shadowColor = 'rgba(0, 0, 0, 0.5)';
+                    ctx.shadowBlur = 8;
+                    ctx.fillText(breed.breed, centerX, imageY + imageSize + 60);
+                    
+                    // Match score
+                    ctx.font = '36px Arial';
+                    ctx.fillText(`${breed.score.toFixed(1)}% Match`, centerX, imageY + imageSize + 110);
+                    
+                    loadedImages++;
+                    
+                    // If all images loaded, add footer and show share options
+                    if (loadedImages === breeds.length) {
+                        // Footer
+                        ctx.textAlign = 'center';
+                        ctx.shadowColor = 'rgba(0, 0, 0, 0.3)';
+                        ctx.shadowBlur = 10;
+                        ctx.font = 'bold 48px Arial';
+                        ctx.fillText('🐾 PawMatch', 960, 980);
+                        
+                        ctx.font = '32px Arial';
+                        ctx.fillText('Find your perfect furry friend!', 960, 1030);
+                        
+                        // Show share dialog
+                        const imageData = canvas.toDataURL('image/png');
+                        showShareDialog(imageData, 'Top 3 Matches');
+                    } else {
+                        // Draw next breed
+                        drawBreed(index + 1);
+                    }
+                };
+                
+                img.onerror = function() {
+                    console.error(`Failed to load image for ${breed.breed}`);
+                    loadedImages++;
+                    if (loadedImages < breeds.length) {
+                        drawBreed(index + 1);
+                    }
+                };
+                
+                img.src = breed.image_url;
+            };
+            
+            // Start drawing from first breed
+            drawBreed(0);
+        }
+
+        // Show share dialog with social media options
+        function showShareDialog(imageData, title) {
+            // Create modal overlay
+            const overlay = document.createElement('div');
+            overlay.style.cssText = `
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                background: rgba(0, 0, 0, 0.8);
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                z-index: 10000;
+                backdrop-filter: blur(10px);
+            `;
+            
+            const modal = document.createElement('div');
+            modal.style.cssText = `
+                background: linear-gradient(135deg, rgba(157, 31, 21, 0.95) 0%, rgba(97, 21, 15, 0.95) 100%);
+                padding: 40px;
+                border-radius: 25px;
+                max-width: 500px;
+                width: 90%;
+                box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+                border: 2px solid rgba(255, 255, 255, 0.2);
+            `;
+            
+            modal.innerHTML = `
+                <h2 style="color: #FBF7BA; margin-bottom: 10px; font-size: 28px; text-align: center;">
+                    Share Your ${title}
+                </h2>
+                <p style="color: rgba(255, 255, 255, 0.9); margin-bottom: 30px; text-align: center; font-size: 16px;">
+                    Choose how you'd like to share
+                </p>
+                <div style="display: flex; flex-direction: column; gap: 15px;">
+                    <button id="btn-download" 
+                            style="padding: 15px 25px; background: linear-gradient(135deg, #FBF7BA 0%, #e8e4a8 100%); color: #9D1F15; border: none; border-radius: 12px; font-size: 16px; font-weight: 600; cursor: pointer; transition: all 0.3s ease;">
+                        <i class="fas fa-download"></i> Download Image
+                    </button>
+                    <button id="btn-whatsapp" 
+                            style="padding: 15px 25px; background: #25D366; color: white; border: none; border-radius: 12px; font-size: 16px; font-weight: 600; cursor: pointer; transition: all 0.3s ease;">
+                        <i class="fab fa-whatsapp"></i> Share on WhatsApp
+                    </button>
+                    <button id="btn-copy" 
+                            style="padding: 15px 25px; background: rgba(255, 255, 255, 0.2); color: white; border: 2px solid rgba(255, 255, 255, 0.4); border-radius: 12px; font-size: 16px; font-weight: 600; cursor: pointer; transition: all 0.3s ease;">
+                        <i class="fas fa-copy"></i> Copy to Clipboard
+                    </button>
+                    <button id="btn-close" 
+                            style="padding: 12px 25px; background: transparent; color: rgba(255, 255, 255, 0.7); border: 2px solid rgba(255, 255, 255, 0.3); border-radius: 12px; font-size: 14px; font-weight: 600; cursor: pointer; margin-top: 10px;">
+                        Close
+                    </button>
+                </div>
+            `;
+            
+            overlay.appendChild(modal);
+            overlay.id = 'share-overlay';
+            document.body.appendChild(overlay);
+            
+            // Add event listeners
+            const filename = `pawmatch-${title.toLowerCase().replace(/\s+/g, '-')}.png`;
+            document.getElementById('btn-download').addEventListener('click', () => downloadImage(imageData, filename));
+            document.getElementById('btn-whatsapp').addEventListener('click', () => shareToWhatsApp(imageData));
+            document.getElementById('btn-copy').addEventListener('click', () => copyImageToClipboard(imageData));
+            document.getElementById('btn-close').addEventListener('click', () => closeShareDialog());
+            
+            // Add hover effects
+            const buttons = modal.querySelectorAll('button');
+            buttons.forEach(btn => {
+                btn.addEventListener('mouseenter', () => {
+                    btn.style.transform = 'translateY(-2px)';
+                    btn.style.boxShadow = '0 5px 15px rgba(0, 0, 0, 0.3)';
+                });
+                btn.addEventListener('mouseleave', () => {
+                    btn.style.transform = 'translateY(0)';
+                    btn.style.boxShadow = 'none';
+                });
+            });
+        }
+
+        function closeShareDialog() {
+            const overlay = document.getElementById('share-overlay');
+            if (overlay) overlay.remove();
+        }
+
+        function downloadImage(imageData, filename) {
+            const link = document.createElement('a');
+            link.download = filename;
+            link.href = imageData;
+            link.click();
+            
+            // Show success message but don't close dialog
+            const downloadBtn = document.getElementById('btn-download');
+            if (downloadBtn) {
+                const originalText = downloadBtn.innerHTML;
+                downloadBtn.innerHTML = '<i class="fas fa-check"></i> Downloaded!';
+                downloadBtn.style.background = '#25D366';
+                setTimeout(() => {
+                    downloadBtn.innerHTML = originalText;
+                    downloadBtn.style.background = 'linear-gradient(135deg, #FBF7BA 0%, #e8e4a8 100%)';
+                }, 2000);
+            }
+        }
+
+        function shareToFacebook(imageData) {
+            // Download the image first
+            downloadImage(imageData, 'pawmatch-results.png');
+            
+            // Open Facebook
+            const shareUrl = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(window.location.href)}`;
+            window.open(shareUrl, '_blank', 'width=600,height=400');
+            
+            // Show instructions after a brief delay
+            setTimeout(() => {
+                alert('Image downloaded! Attach it to your Facebook post using the photo button.');
+            }, 800);
+        }
+
+        function shareToTwitter(title) {
+            // Download the image first
+            const imageData = document.querySelector('canvas') ? document.querySelector('canvas').toDataURL('image/png') : null;
+            if (imageData) {
+                downloadImage(imageData, 'pawmatch-results.png');
+            }
+            
+            // Open Twitter
+            const text = `I found my perfect dog matches with PawMatch! Check out my ${title}! #PawMatch #DogLover #PerfectMatch`;
+            const shareUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}`;
+            window.open(shareUrl, '_blank', 'width=600,height=400');
+            
+            // Show instructions after a brief delay
+            setTimeout(() => {
+                alert('Image downloaded! Attach it to your tweet using the image button.');
+            }, 800);
+        }
+
+        function shareToWhatsApp(imageData) {
+            // Download the image first
+            downloadImage(imageData, 'pawmatch-results.png');
+            
+            // Prepare the message
+            const text = 'I found my perfect dog matches with PawMatch! Check out my results!';
+            const encodedText = encodeURIComponent(text);
+            
+            // Detect if mobile or desktop
+            const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+            
+            let shareUrl;
+            if (isMobile) {
+                // For mobile: Use whatsapp:// scheme to open WhatsApp app directly
+                shareUrl = `whatsapp://send?text=${encodedText}`;
+            } else {
+                // For desktop: Use WhatsApp Web
+                shareUrl = `https://web.whatsapp.com/send?text=${encodedText}`;
+            }
+            
+            // Open WhatsApp
+            window.open(shareUrl, '_blank');
+            
+            // Show instructions after a brief delay
+            setTimeout(() => {
+                alert('Image downloaded! Attach it to your WhatsApp message using the attachment button.');
+            }, 800);
+        }
+
+        async function copyImageToClipboard(imageData) {
+            try {
+                const blob = await (await fetch(imageData)).blob();
+                await navigator.clipboard.write([
+                    new ClipboardItem({ 'image/png': blob })
+                ]);
+                alert('✅ Image copied to clipboard! You can now paste it anywhere.');
+                closeShareDialog();
+            } catch (err) {
+                console.error('Failed to copy:', err);
+                // Fallback to download
+                downloadImage(imageData, 'pawmatch-results.png');
+                alert('📸 Image downloaded instead! (Copy to clipboard not supported in this browser)');
+            }
+        }
+
+        window.addEventListener('load', () => {
+            userInput.focus();
+        });
+    </script>
+</body>
+</html>
