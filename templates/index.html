@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>PawMatch - Find Your Perfect Dog Breed Matcher</title>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='0.9em' font-size='90'>🐾</text></svg>">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         * {
@@ -685,31 +686,63 @@
 
         /* Mobile responsive */
         @media (max-width: 768px) {
+            body {
+                padding: 0;
+            }
+
             .container {
                 height: 100vh;
                 max-height: 100vh;
                 border-radius: 0;
+                width: 100%;
+                max-width: 100%;
+            }
+
+            .header {
+                padding: 15px;
             }
 
             .header h1 {
-                font-size: 32px;
+                font-size: 24px;
             }
 
             .header .logo {
-                font-size: 40px;
+                font-size: 32px;
             }
 
             .message-content {
-                max-width: 80%;
+                max-width: 85%;
+                font-size: 14px;
             }
 
             .reset-btn {
-                padding: 8px 16px;
-                font-size: 12px;
+                padding: 8px 12px;
+                font-size: 11px;
             }
 
             #send-btn {
-                padding: 15px 25px;
+                padding: 12px 20px;
+                font-size: 14px;
+            }
+
+            #user-input {
+                font-size: 14px;
+                padding: 15px;
+            }
+
+            .breed-card {
+                width: 100%;
+                margin: 10px 0;
+            }
+
+            .breed-grid {
+                grid-template-columns: 1fr;
+                gap: 10px;
+            }
+
+            .share-btn, .share-all-btn {
+                padding: 8px 12px;
+                font-size: 12px;
             }
         }
     </style>
@@ -1185,9 +1218,14 @@
                         ctx.font = '32px Arial';
                         ctx.fillText('Find your perfect furry friend!', 960, 1030);
                         
-                        // Show share dialog
+                        // Show share dialog with breed information
                         const imageData = canvas.toDataURL('image/png');
-                        showShareDialog(imageData, 'Top 3 Matches');
+                        const breedInfo = {
+                            breeds: breeds.map(b => b.breed),
+                            scores: breeds.map(b => b.score.toFixed(1)),
+                            imageUrls: breeds.map(b => b.image_url)
+                        };
+                        showShareDialog(imageData, 'Top 3 Matches', breedInfo);
                     } else {
                         // Draw next breed
                         drawBreed(index + 1);
@@ -1210,7 +1248,7 @@
         }
 
         // Show share dialog with social media options
-        function showShareDialog(imageData, title) {
+        function showShareDialog(imageData, title, breedInfo = null) {
             // Create modal overlay
             const overlay = document.createElement('div');
             overlay.style.cssText = `
@@ -1272,7 +1310,7 @@
             // Add event listeners
             const filename = `pawmatch-${title.toLowerCase().replace(/\s+/g, '-')}.png`;
             document.getElementById('btn-download').addEventListener('click', () => downloadImage(imageData, filename));
-            document.getElementById('btn-whatsapp').addEventListener('click', () => shareToWhatsApp(imageData));
+            document.getElementById('btn-whatsapp').addEventListener('click', () => shareToWhatsApp(breedInfo || {breeds: [title], scores: [], imageUrls: []}));
             document.getElementById('btn-copy').addEventListener('click', () => copyImageToClipboard(imageData));
             document.getElementById('btn-close').addEventListener('click', () => closeShareDialog());
             
@@ -1347,11 +1385,14 @@
         }
 
         function shareToWhatsApp(imageData) {
-            // Download the image first
-            downloadImage(imageData, 'pawmatch-results.png');
+            // Extract breed info from imageData
+            const breedInfo = imageData.breeds.map((breed, index) => {
+                const imageUrl = imageData.imageUrls && imageData.imageUrls[index] ? imageData.imageUrls[index] : '';
+                return `${index + 1}. *${breed}* - ${imageData.scores[index]}% match\n${imageUrl}`;
+            }).join('\n\n');
             
-            // Prepare the message
-            const text = 'I found my perfect dog matches with PawMatch! Check out my results!';
+            // Prepare the message with image URLs
+            const text = `🐾 *I found my perfect dog matches with PawMatch!* 🐾\n\n${breedInfo}\n\nFind your match at: https://pawmatch-221744537979.us-central1.run.app`;
             const encodedText = encodeURIComponent(text);
             
             // Detect if mobile or desktop
@@ -1368,11 +1409,6 @@
             
             // Open WhatsApp
             window.open(shareUrl, '_blank');
-            
-            // Show instructions after a brief delay
-            setTimeout(() => {
-                alert('Image downloaded! Attach it to your WhatsApp message using the attachment button.');
-            }, 800);
         }
 
         async function copyImageToClipboard(imageData) {
