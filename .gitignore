@@ -48,9 +48,17 @@ outputs/*.jpeg
 
 # Large files
 static/Dog-Breeds/
+static/.DS_Store
 
-# Archives
+# Development files
 archive/
+scripts/
+outputs/
+docs/
+*.ipynb
+chat_cli.py
+test_*.py
+run_*.sh
 
 # Logs
 *.log
@@ -59,3 +67,8 @@ logs/
 # Database
 *.db
 *.sqlite
+
+# Deployment configs (keep only vercel.json)
+railway.json
+render.yaml
+.do/

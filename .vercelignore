@@ -1,0 +1,14 @@
+static/Dog-Breeds/
+archive/
+outputs/
+__pycache__/
+*.pyc
+.env
+.venv/
+venv/
+*.ipynb
+.ipynb_checkpoints/
+scripts/
+docs/
+*.md
+!README.md
