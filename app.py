@@ -13,7 +13,7 @@ load_dotenv()
 import numpy as np
 from sklearn.metrics.pairwise import cosine_similarity
 from langchain_openai import AzureChatOpenAI
-from langgraph.graph import StateGraph, START, END
+from langgraph.graph import StateGraph
 from langgraph.graph.message import add_messages
 from langgraph.checkpoint.memory import MemorySaver
 from langchain_core.messages import HumanMessage, AIMessage, ToolMessage
@@ -358,16 +358,16 @@ class Assistant:
 builder = StateGraph(DogMatcherState)
 builder.add_node("assistant", Assistant(assistant_prompt | llm_with_tools))
 builder.add_node("tools", ToolNode(tools))
-builder.add_edge(START, "assistant")
+builder.add_edge("__start__", "assistant")
 
 def should_continue(state: DogMatcherState):
     messages = state["messages"]
     last_message = messages[-1]
     if last_message.tool_calls:
         return "tools"
-    return END
+    return "__end__"
 
-builder.add_conditional_edges("assistant", should_continue, ["tools", END])
+builder.add_conditional_edges("assistant", should_continue, ["tools", "__end__"])
 builder.add_edge("tools", "assistant")
 
 memory = MemorySaver()
